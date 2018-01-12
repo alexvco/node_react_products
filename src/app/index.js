@@ -11,6 +11,7 @@ var Product = CreateReactClass({
 
   buy: function() {
     this.setState({qty: this.state.qty + 1});
+    this.props.handleTotal(this.props.price);
   },
 
   show: function(){
@@ -37,7 +38,7 @@ var Total = CreateReactClass({
   render: function() {
     return(
       <div>
-        <h3>Total Cash: </h3>
+        <h3>Total Cash: ${this.props.total}</h3>
       </div>
     );
   }
@@ -47,17 +48,37 @@ var Total = CreateReactClass({
 
 
 var ProductList = CreateReactClass({
+  getInitialState: function() {
+    return ({
+      total: 0,
+      productList: [
+        {name: "Android", price: 121},
+        {name: "Apple", price: 123},
+        {name: "Nokia", price: 65}
+      ]
+    });
+  },
+
+  calculateTotal: function(price){
+    this.setState({total: this.state.total + price});
+  },
+
   showProduct: function(name) {
     alert("You selected " + name);
   },
 
   render: function() {
+    var component = this; // because this doesnt refer to ProductList in the following callback function
+    var products = this.state.productList.map(function(product){
+      return(
+        <Product name={product.name} price={product.price} handleShow={component.showProduct} handleTotal={component.calculateTotal} />
+      );
+    });
+
     return(
       <div>
-        <Product name="Android" price="121" handleShow={this.showProduct} />
-        <Product name="Apple" price="123" handleShow={this.showProduct} />
-        <Product name="Nokia" price="65" handleShow={this.showProduct} />
-        <Total />
+        {products}
+        <Total total={this.state.total} />
       </div>
     );
   }
